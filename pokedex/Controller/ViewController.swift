@@ -111,7 +111,15 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        var pokemon: Pokemon!
         
+        if inSearchMode {
+            pokemon = filteredPokemons[indexPath.row]
+        } else {
+            pokemon = pokemons[indexPath.row]
+        }
+        
+        performSegue(withIdentifier: "showPokemonDetailViewController", sender: pokemon)
     }
     
     // Define the size of the cells
@@ -139,6 +147,15 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         view.endEditing(true)
     }
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showPokemonDetailViewController" {
+            if let pokemonDetailViewController = segue.destination as? PokemonDetailViewController {
+                if let pokemon = sender as? Pokemon {
+                    pokemonDetailViewController.pokemon = pokemon
+                }
+            }
+        }
+    }
 }
 
