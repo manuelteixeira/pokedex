@@ -50,6 +50,8 @@ class PokemonDetailViewController: UIViewController {
         heightLabel.text = pokemon.height
         typeLabel.text = pokemon.type
         descriptionLabel.text = pokemon.description
+        evolutionLabel.text = "\(pokemon.nextEvolutionName.capitalized) LVL \(pokemon.nextEvolutionLevel)"
+        nextEvolutionImage.image = UIImage(named: pokemon.nextEvolutionId)
     }
 
 }

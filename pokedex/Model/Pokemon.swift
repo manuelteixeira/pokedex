@@ -20,6 +20,10 @@ class Pokemon {
     private var _attack: String!
     private var _nextEvolutionText: String!
     private var _pokemonURL: String!
+    private var _evolutionURL: String!
+    private var _nextEvolutionName: String!
+    private var _nextEvolutionId: String!
+    private var _nextEvolutionLevel: String!
     
     
     // MARK: - Getters
@@ -83,11 +87,36 @@ class Pokemon {
         return _nextEvolutionText
     }
     
+    var nextEvolutionName: String {
+        if _nextEvolutionName == nil {
+            _nextEvolutionName = ""
+        }
+        
+        return _nextEvolutionName
+    }
+    
+    var nextEvolutionId: String {
+        if _nextEvolutionId == nil {
+            _nextEvolutionId = ""
+        }
+        
+        return _nextEvolutionId
+    }
+    
+    var nextEvolutionLevel: String {
+        if _nextEvolutionLevel == nil {
+            _nextEvolutionLevel = ""
+        }
+        
+        return _nextEvolutionLevel
+    }
+    
     // MARK: - Init
     init(name: String, pokedexId: Int) {
         self._name = name
         self._pokedexId = pokedexId
         self._pokemonURL = "\(BASE_URL)\(POKEMON_URL)\(pokedexId)/"
+        self._evolutionURL = "\(BASE_URL)\(EVOLUTION_URL)\(pokedexId)"
     }
     
     // MARK: - API Request
@@ -142,6 +171,40 @@ class Pokemon {
                     }
                 } else {
                     self._description = ""
+                }
+                
+            }
+            
+            completed()
+        }
+        
+        print(_evolutionURL)
+        
+        Alamofire.request(_evolutionURL).responseJSON {
+            (response) in
+            
+            #warning ("TODO: Fix to new API V2")
+            if let evolutionDictionary = response.result.value as? [String : Any] {
+                if let chain = evolutionDictionary["chain"] as? [String : Any] {
+                    if let evolution = chain["evolves_to"] as? [[String : Any]] {
+                        if let species = evolution[0]["species"] as? [String : Any] {
+                            if let name = species["name"] as? String {
+                                self._nextEvolutionName = name
+                            }
+                            
+                            if let url = species["url"] as? String {
+                                // Extract the id from the URL
+                                let str = url.replacingOccurrences(of: "https://pokeapi.co/api/v2/pokemon-species/", with: "")
+                                self._nextEvolutionId = str.replacingOccurrences(of: "/", with: "")
+                            }
+                        }
+                        
+                        if let evolutionDetails = evolution[0]["evolution_details"] as? [[String : Any]] {
+                            if let evolutionLevel = evolutionDetails[0]["min_level"] as? Int {
+                                self._nextEvolutionLevel = "\(evolutionLevel)"
+                            }
+                        }
+                    }
                 }
             }
             
